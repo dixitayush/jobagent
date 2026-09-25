@@ -1,229 +1,212 @@
 "use client";
 
-import { ArrowLeft, Bookmark, BookmarkCheck, ExternalLink, ThumbsDown, ThumbsUp } from "lucide-react";
+import { ArrowLeft, Bookmark, BookmarkCheck, Check, ExternalLink, Minus, ThumbsDown, ThumbsUp } from "lucide-react";
 import Link from "next/link";
 import { use, useState } from "react";
-import { MatchBadge } from "@/components/job-card";
+import { FitStrip, MatchScore } from "@/components/fit-strip";
+import { useToast } from "@/components/toast";
 import { Alert } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ApiError } from "@/lib/api";
 import { useJob, useJobActions } from "@/lib/queries";
-import { formatDateTime, pretty, timeAgo } from "@/lib/utils";
+import { cn, formatDateTime, pretty, timeAgo } from "@/lib/utils";
 
-const BREAKDOWN_LABELS: Record<string, [string, number]> = {
-  skills: ["Skills", 30],
-  experience: ["Experience", 20],
-  title: ["Job title", 15],
-  semantic: ["Semantic similarity", 15],
-  location: ["Location", 10],
-  seniority: ["Seniority", 5],
-  workMode: ["Work mode", 5],
-};
+function SkillList({ title, items, tone, empty }: { title: string; items: string[]; tone: "have" | "close" | "gap"; empty: string }) {
+  const Icon = tone === "have" ? Check : tone === "close" ? Minus : Minus;
+  return (
+    <div>
+      <h3 className="text-sm font-medium">{title}</h3>
+      {items.length ? (
+        <ul className="mt-2 space-y-1.5">
+          {items.map((s) => (
+            <li key={s} className="flex items-start gap-2 text-sm">
+              <Icon className={cn("mt-0.5 size-4 shrink-0", tone === "have" ? "text-fit" : tone === "close" ? "text-graphite" : "text-caution")} aria-hidden />
+              {s}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-2 text-sm text-graphite">{empty}</p>
+      )}
+    </div>
+  );
+}
 
-/** PRD §41 job details with match explanation. */
+/** PRD §41 job details with the match explanation. */
 export default function JobDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const job = useJob(id);
   const { save, feedback, track } = useJobActions();
+  const toast = useToast();
   const [voted, setVoted] = useState<boolean | null>(null);
 
-  if (job.error) return <Alert tone="error">{job.error instanceof ApiError && job.error.status === 404 ? "This job is not available." : "Could not load this job."}</Alert>;
-  if (!job.data) return <Skeleton className="h-96" />;
+  if (job.error)
+    return (
+      <Alert tone="error" title={job.error instanceof ApiError && job.error.status === 404 ? "This job isn't available" : "Couldn't load this job"}>
+        <Link href="/jobs" className="underline underline-offset-4">
+          Back to the job feed
+        </Link>
+      </Alert>
+    );
+  if (!job.data)
+    return (
+      <div className="space-y-4" aria-busy>
+        <Skeleton className="h-9 w-2/3" />
+        <Skeleton className="h-5 w-1/3" />
+        <Skeleton className="h-72" />
+      </div>
+    );
+
   const j = job.data;
   const m = j.match;
+  const posted = j.postedAt ? `Posted ${timeAgo(j.postedAt)}` : `First seen ${timeAgo(j.firstSeenAt)}`;
+  const toggleSave = () => save.mutate({ id: j.id, saved: !j.saved }, { onSuccess: () => toast(j.saved ? "Removed from saved jobs" : "Saved for later") });
+  const vote = (helpful: boolean) => {
+    feedback.mutate({ id: j.id, helpful });
+    setVoted(helpful);
+    toast("Thanks. This tunes your future matches.");
+  };
+  const apply = (
+    <a
+      href={j.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={() => track("JOB_CLICKED", j.id)}
+      className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-ink px-5 font-medium text-primary-foreground hover:bg-ink/85"
+    >
+      Apply on {j.company}'s site <ExternalLink className="size-4" aria-hidden />
+    </a>
+  );
 
   return (
     <>
-      <Link href="/jobs" className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="size-4" aria-hidden /> Back to jobs
+      <Link href="/jobs" className="mb-6 inline-flex items-center gap-1.5 text-sm text-graphite hover:text-ink">
+        <ArrowLeft className="size-4" aria-hidden /> Job feed
       </Link>
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{j.title}</h1>
-          <p className="text-muted-foreground">{j.company}</p>
-          <div className="mt-3">
-            <MatchBadge level={j.matchLevel} score={j.score} className="text-sm" />
+
+      <header className="mb-8 max-w-3xl">
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">{j.title}</h1>
+        <p className="mt-1.5 text-base">{j.company}</p>
+        <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-graphite">
+          {j.locations.length > 0 && <li>{j.locations.join(", ")}</li>}
+          {j.workMode && <li>{pretty(j.workMode)}</li>}
+          {j.employmentType && <li>{pretty(j.employmentType)}</li>}
+          <li>
+            {j.freshness === "NEW" && <span className="marker font-medium text-ink">New</span>} {posted}
+          </li>
+        </ul>
+      </header>
+
+      <div className="grid gap-8 lg:grid-cols-[1fr_340px] lg:gap-12">
+        {/* Score panel: first on mobile, sticky on the right on desktop */}
+        <aside className="lg:order-2">
+          <div className="space-y-5 rounded-xl border bg-surface p-5 lg:sticky lg:top-8">
+            <div>
+              <MatchScore score={j.score} level={j.matchLevel} size="lg" />
+              {m && (
+                <p className="mt-1 text-xs text-graphite">
+                  {m.evaluatedBy === "LLM" ? "Checked by AI against your resume" : "Scored from your resume and preferences"}. Confidence {Math.round(m.confidence * 100)}%.
+                </p>
+              )}
+            </div>
+            {m && <FitStrip fit={m.breakdown} size="lg" />}
+            <div className="hidden gap-2 lg:flex">{apply}</div>
+            <div className="hidden gap-2 lg:flex">
+              <Button variant="outline" className="flex-1" onClick={toggleSave} aria-pressed={j.saved}>
+                {j.saved ? <BookmarkCheck className="text-fit" /> : <Bookmark />} {j.saved ? "Saved" : "Save"}
+              </Button>
+              <Button variant="outline" className="flex-1" onClick={() => (track("JOB_APPLIED", j.id), toast("Marked as applied"))}>
+                I applied
+              </Button>
+            </div>
+            <dl className="divide-y border-t text-sm">
+              {[
+                ["Salary", j.salaryText || "Not listed"],
+                ["Level", pretty(j.seniority) || "Not stated"],
+                ["Experience asked", j.requiredYears !== null ? `${j.requiredYears}+ years` : "Not stated"],
+                ["Found on", pretty(j.source)],
+                ["Posted", j.postedAt ? formatDateTime(j.postedAt) : `First seen ${timeAgo(j.firstSeenAt)}`],
+              ].map(([k, v]) => (
+                <div key={k} className="flex justify-between gap-4 py-2.5">
+                  <dt className="text-graphite">{k}</dt>
+                  <dd className="text-right font-medium">{v}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <a href={j.url} target="_blank" rel="noopener noreferrer" onClick={() => track("JOB_CLICKED", j.id)} className="inline-flex h-10 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-            Apply on {pretty(j.source)} <ExternalLink className="size-4" aria-hidden />
-          </a>
-          <Button variant="outline" onClick={() => save.mutate({ id: j.id, saved: !j.saved })} aria-pressed={j.saved}>
-            {j.saved ? <BookmarkCheck /> : <Bookmark />} {j.saved ? "Saved" : "Save"}
-          </Button>
-          <Button variant="outline" onClick={() => track("JOB_APPLIED", j.id)}>
-            I applied
-          </Button>
+        </aside>
+
+        <div className="min-w-0 space-y-10 lg:order-1">
+          {m ? (
+            <section aria-labelledby="why">
+              <h2 id="why" className="text-lg font-semibold tracking-tight">
+                Why it fits
+              </h2>
+              {m.aiSummary && <p className="mt-3 max-w-prose text-base leading-7">{m.aiSummary}</p>}
+              <div className="mt-6 grid gap-6 sm:grid-cols-3">
+                <SkillList title="You have" items={m.skills.matched} tone="have" empty="No direct overlap found." />
+                <SkillList title="Close to what they ask" items={m.skills.inferred} tone="close" empty="Nothing inferred." />
+                <SkillList title="Gaps" items={[...m.skills.missing, ...m.skills.preferredMissing.map((s) => `${s} (nice to have)`)]} tone="gap" empty="No gaps found." />
+              </div>
+              <ul className="mt-6 space-y-2 text-sm">
+                <li className="flex gap-2">
+                  {m.experience.match ? <Check className="mt-0.5 size-4 shrink-0 text-fit" aria-hidden /> : <Minus className="mt-0.5 size-4 shrink-0 text-caution" aria-hidden />}
+                  <span>
+                    {m.experience.requiredYears !== null ? `Asks for ${m.experience.requiredYears}+ years` : "Experience not stated"}. Your resume shows about {m.experience.candidateYears ?? 0} years.
+                  </span>
+                </li>
+                <li className="flex gap-2">
+                  {m.location.match ? <Check className="mt-0.5 size-4 shrink-0 text-fit" aria-hidden /> : <Minus className="mt-0.5 size-4 shrink-0 text-caution" aria-hidden />}
+                  <span>{m.location.reason}</span>
+                </li>
+              </ul>
+              {m.concerns.length > 0 && (
+                <div className="mt-6 rounded-xl border border-caution/25 bg-caution/5 p-4">
+                  <h3 className="text-sm font-medium">Worth checking before you apply</h3>
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-graphite">
+                    {m.concerns.map((c) => (
+                      <li key={c}>{c}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <div className="mt-6 flex flex-wrap items-center gap-3 text-sm">
+                <span className="text-graphite">Was this a good pick for you?</span>
+                {voted === null ? (
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => vote(true)}>
+                      <ThumbsUp /> Yes
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => vote(false)}>
+                      <ThumbsDown /> No
+                    </Button>
+                  </div>
+                ) : (
+                  <span>{voted ? "Marked as a good pick." : "Marked as not relevant."}</span>
+                )}
+              </div>
+            </section>
+          ) : (
+            <Alert title="Not scored yet">This job will be checked against your profile on the agent's next run.</Alert>
+          )}
+
+          <section aria-labelledby="desc">
+            <h2 id="desc" className="text-lg font-semibold tracking-tight">
+              About the role
+            </h2>
+            <div className="mt-3 max-w-prose whitespace-pre-line text-[15px] leading-7">{j.description || "The company didn't include a description. Open the listing to read more."}</div>
+          </section>
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
-        <div className="space-y-6">
-          {m ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>Why this job matches</CardTitle>
-                <p className="text-sm text-muted-foreground">Based on the information in your resume and preferences — not a guarantee of fit.</p>
-              </CardHeader>
-              <CardContent className="space-y-5">
-                {m.aiSummary && <p className="text-sm">{m.aiSummary}</p>}
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <div>
-                    <h3 className="mb-2 text-sm font-medium">Matched skills</h3>
-                    <ul className="flex flex-wrap gap-1.5">
-                      {m.skills.matched.map((s) => (
-                        <li key={s}>
-                          <Badge className="border-transparent bg-success/15">✓ {s}</Badge>
-                        </li>
-                      ))}
-                      {m.skills.inferred.map((s) => (
-                        <li key={s}>
-                          <Badge title="Inferred from related experience">≈ {s}</Badge>
-                        </li>
-                      ))}
-                      {!m.skills.matched.length && !m.skills.inferred.length && <li className="text-sm text-muted-foreground">No explicit skill overlap found.</li>}
-                    </ul>
-                  </div>
-                  <div>
-                    <h3 className="mb-2 text-sm font-medium">Missing skills</h3>
-                    <ul className="flex flex-wrap gap-1.5">
-                      {m.skills.missing.map((s) => (
-                        <li key={s}>
-                          <Badge className="border-transparent bg-warning/15">△ {s} · required</Badge>
-                        </li>
-                      ))}
-                      {m.skills.preferredMissing.map((s) => (
-                        <li key={s}>
-                          <Badge>△ {s} · preferred</Badge>
-                        </li>
-                      ))}
-                      {!m.skills.missing.length && !m.skills.preferredMissing.length && <li className="text-sm text-muted-foreground">None identified.</li>}
-                    </ul>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="mb-1 text-sm font-medium">Experience</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {m.experience.requiredYears !== null ? `${m.experience.requiredYears}+ years requested` : "Required experience not stated"} · your resume shows ~{m.experience.candidateYears ?? 0} years
-                    {m.experience.match === true && " ✓"}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="mb-1 text-sm font-medium">Location</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {m.location.match ? "✓" : "△"} {m.location.reason}
-                  </p>
-                </div>
-                {m.concerns.length > 0 && (
-                  <div>
-                    <h3 className="mb-1 text-sm font-medium">Things to consider</h3>
-                    <ul className="list-inside list-disc text-sm text-muted-foreground">
-                      {m.concerns.map((c) => (
-                        <li key={c}>{c}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                <div className="flex items-center gap-2 border-t pt-4">
-                  <span className="text-sm">Was this a good recommendation?</span>
-                  {voted === null ? (
-                    <>
-                      <Button size="sm" variant="outline" onClick={() => (feedback.mutate({ id: j.id, helpful: true }), setVoted(true))} aria-label="Good recommendation">
-                        <ThumbsUp />
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => (feedback.mutate({ id: j.id, helpful: false }), setVoted(false))} aria-label="Not relevant">
-                        <ThumbsDown />
-                      </Button>
-                    </>
-                  ) : (
-                    <span className="text-sm text-muted-foreground">Thanks — this improves future matches.</span>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <Alert title="Not scored yet">This job hasn&apos;t been evaluated against your profile. It will be during the next agent run.</Alert>
-          )}
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Original description</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="whitespace-pre-line text-sm leading-relaxed">{j.description || "No description provided by the source."}</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <aside className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Details</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
-                <dt className="text-muted-foreground">Location</dt>
-                <dd>{j.locations.join(" · ") || "—"}</dd>
-                <dt className="text-muted-foreground">Work mode</dt>
-                <dd>{pretty(j.workMode) || "—"}</dd>
-                <dt className="text-muted-foreground">Employment</dt>
-                <dd>{pretty(j.employmentType) || "—"}</dd>
-                <dt className="text-muted-foreground">Seniority</dt>
-                <dd>{pretty(j.seniority) || "—"}</dd>
-                <dt className="text-muted-foreground">Salary</dt>
-                <dd>{j.salaryText || "Not disclosed"}</dd>
-                <dt className="text-muted-foreground">Posted</dt>
-                <dd>{j.postedAt ? formatDateTime(j.postedAt) : `First seen ${timeAgo(j.firstSeenAt)}`}</dd>
-                <dt className="text-muted-foreground">Source</dt>
-                <dd>{pretty(j.source)}</dd>
-              </dl>
-            </CardContent>
-          </Card>
-          {m && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Score breakdown</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2.5">
-                {Object.entries(BREAKDOWN_LABELS).map(([k, [label, max]]) => {
-                  const v = m.breakdown[k as keyof typeof m.breakdown] ?? 0;
-                  return (
-                    <div key={k}>
-                      <div className="flex justify-between text-xs">
-                        <span>{label}</span>
-                        <span className="tabular-nums text-muted-foreground">
-                          {v.toFixed(1)} / {max}
-                        </span>
-                      </div>
-                      <div className="mt-1 h-1.5 rounded-full bg-muted" role="presentation">
-                        <div className="h-1.5 rounded-full bg-primary" style={{ width: `${Math.min(100, (v / max) * 100)}%` }} />
-                      </div>
-                    </div>
-                  );
-                })}
-                <p className="pt-2 text-xs text-muted-foreground">
-                  Evaluated by {m.evaluatedBy === "LLM" ? "AI + rules" : m.evaluatedBy === "RULES_VECTOR" ? "rules + semantic search" : "rules"} · confidence {Math.round(m.confidence * 100)}%
-                </p>
-              </CardContent>
-            </Card>
-          )}
-          {(j.requiredSkills.length > 0 || j.preferredSkills.length > 0) && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Requirements</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm">
-                {j.requiredSkills.length > 0 && <p>Required: {j.requiredSkills.join(", ")}</p>}
-                {j.preferredSkills.length > 0 && <p className="text-muted-foreground">Preferred: {j.preferredSkills.join(", ")}</p>}
-                {j.requiredYears !== null && <p className="text-muted-foreground">{j.requiredYears}+ years experience</p>}
-              </CardContent>
-            </Card>
-          )}
-        </aside>
+      <div className="h-20 lg:hidden" aria-hidden />
+      {/* Mobile action bar */}
+      <div className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+62px)] z-20 flex gap-2 border-t bg-paper/95 px-4 py-3 backdrop-blur lg:hidden">
+        {apply}
+        <Button variant="outline" size="icon" className="size-11" onClick={toggleSave} aria-pressed={j.saved} aria-label={j.saved ? "Remove from saved" : "Save job"}>
+          {j.saved ? <BookmarkCheck className="text-fit" /> : <Bookmark />}
+        </Button>
       </div>
     </>
   );

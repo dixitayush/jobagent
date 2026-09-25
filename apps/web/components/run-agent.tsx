@@ -2,6 +2,7 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Circle, Loader2, Play, XCircle } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import type { ManualRunState, ManualRunStep } from "@jobagent/shared";
 import { ApiError, get, post } from "@/lib/api";
@@ -11,9 +12,9 @@ import { Alert } from "./ui/alert";
 import { Button } from "./ui/button";
 
 const STEPS: { step: ManualRunStep; label: string }[] = [
-  { step: "CRAWLING", label: "Check career pages for new jobs" },
-  { step: "MATCHING", label: "Match jobs against your profile" },
-  { step: "EMAILING", label: "Email your new matches" },
+  { step: "CRAWLING", label: "Check career pages" },
+  { step: "MATCHING", label: "Match against your profile" },
+  { step: "EMAILING", label: "Email new matches" },
 ];
 const ORDER: ManualRunStep[] = ["QUEUED", "CRAWLING", "MATCHING", "EMAILING", "DONE"];
 const isActive = (s: ManualRunState | null | undefined) => !!s && s.step !== "DONE" && s.step !== "FAILED";
@@ -75,35 +76,72 @@ export function ManualRunPanel() {
     lastStep.current = s.step;
   }, [s, qc]);
 
-  if (!s) return null;
-  const active = isActive(s);
-  // Hide old results after a while; always show an active run.
-  if (!active && s.finishedAt && Date.now() - new Date(s.finishedAt).getTime() > 6 * 3_600_000) return null;
-  const current = ORDER.indexOf(s.step);
-
-  if (!active) {
-    return (
-      <Alert tone={s.step === "FAILED" ? "error" : s.emailStatus === "SENT" ? "success" : "info"} title={s.step === "FAILED" ? "Agent run failed" : "Agent run complete"} className="mb-6">
-        {s.message} <span className="text-muted-foreground">· {timeAgo(s.finishedAt)}</span>
-      </Alert>
-    );
-  }
-
+  const visible = !!s && (isActive(s) || !s.finishedAt || Date.now() - new Date(s.finishedAt).getTime() < 6 * 3_600_000);
   return (
-    <div className="mb-6 rounded-lg border p-4" role="status" aria-live="polite">
-      <p className="mb-3 text-sm font-medium">Agent running · {s.message}</p>
-      <ol className="space-y-2 text-sm">
+    <AnimatePresence initial={false} mode="wait">
+      {visible && s && (
+        <motion.div
+          key={isActive(s) ? "running" : `done-${s.runKey}`}
+          initial={{ opacity: 0, y: -6, height: 0 }}
+          animate={{ opacity: 1, y: 0, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+          className="overflow-hidden"
+        >
+          {isActive(s) ? <RunProgress s={s} /> : <RunResult s={s} />}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function RunResult({ s }: { s: ManualRunState }) {
+  return (
+    <Alert tone={s.step === "FAILED" ? "error" : s.emailStatus === "SENT" ? "success" : "info"} title={s.step === "FAILED" ? "The agent run didn't finish" : "Agent run complete"} className="mb-6">
+      {s.message}. <span className="text-graphite">Finished {timeAgo(s.finishedAt)}.</span>
+    </Alert>
+  );
+}
+
+/** Overall progress: steps are weighted, and crawling advances per company checked. */
+function progressOf(s: ManualRunState): number {
+  if (s.step === "QUEUED") return 4;
+  if (s.step === "CRAWLING") {
+    const done = s.sourcesCrawled + s.sourcesSkippedFresh;
+    return 8 + (s.sourcesTotal ? (done / s.sourcesTotal) * 44 : 44);
+  }
+  if (s.step === "MATCHING") return 62;
+  if (s.step === "EMAILING") return 88;
+  return 100;
+}
+
+function RunProgress({ s }: { s: ManualRunState }) {
+  const current = ORDER.indexOf(s.step);
+  return (
+    <div className="mb-6 rounded-xl border bg-surface p-5" role="status" aria-live="polite">
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-sm font-medium">{s.message}</p>
+        <span className="tabular text-xs text-graphite">{Math.round(progressOf(s))}%</span>
+      </div>
+      <div className="mt-3 h-1 overflow-hidden rounded-full bg-rule" aria-hidden>
+        <motion.div className="h-full rounded-full bg-fit" initial={{ width: 0 }} animate={{ width: `${progressOf(s)}%` }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} />
+      </div>
+      <ol className="mt-4 grid gap-2 text-sm sm:grid-cols-3">
         {STEPS.map(({ step, label }) => {
           const idx = ORDER.indexOf(step);
           const done = current > idx;
           const now = current === idx;
           return (
-            <li key={step} className={cn("flex items-center gap-2", !done && !now && "text-muted-foreground")}>
-              {done ? <CheckCircle2 className="size-4 text-success" aria-hidden /> : now ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Circle className="size-4" aria-hidden />}
+            <li key={step} className={cn("flex items-center gap-2 transition-colors", !done && !now && "text-graphite")}>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span key={done ? "done" : now ? "now" : "todo"} initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.6, opacity: 0 }} transition={{ duration: 0.18 }} className="grid place-items-center">
+                  {done ? <CheckCircle2 className="size-4 text-fit" aria-hidden /> : now ? <Loader2 className="size-4 animate-spin text-ink" aria-hidden /> : <Circle className="size-4" aria-hidden />}
+                </motion.span>
+              </AnimatePresence>
               {label}
               {step === "CRAWLING" && s.sourcesTotal > 0 && (
-                <span className="text-xs text-muted-foreground">
-                  ({s.sourcesCrawled + s.sourcesSkippedFresh}/{s.sourcesTotal})
+                <span className="tabular text-xs text-graphite">
+                  {s.sourcesCrawled + s.sourcesSkippedFresh}/{s.sourcesTotal}
                 </span>
               )}
             </li>
@@ -111,8 +149,8 @@ export function ManualRunPanel() {
         })}
       </ol>
       {s.sourcesFailed.length > 0 && (
-        <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
-          <XCircle className="size-3.5" aria-hidden /> Couldn&apos;t reach: {s.sourcesFailed.join(", ")}
+        <p className="mt-3 flex items-center gap-1.5 text-xs text-graphite">
+          <XCircle className="size-3.5" aria-hidden /> Couldn&apos;t reach {s.sourcesFailed.join(", ")}
         </p>
       )}
     </div>

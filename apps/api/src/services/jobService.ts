@@ -44,6 +44,7 @@ const toCard = (r: JobRow): JobCard => ({
   url: r.url,
   score: r.score,
   matchLevel: r.match_level,
+  fit: r.result?.breakdown ?? null,
   topSkills: (r.result?.skills?.matched?.length ? r.result.skills.matched : (r.skills ?? [])).slice(0, 5),
   saved: r.saved,
   dismissed: r.dismissed,

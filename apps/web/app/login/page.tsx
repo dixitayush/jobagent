@@ -2,12 +2,13 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import Script from "next/script";
+import { BrandMark } from "@/components/brand";
 import { Suspense, useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import type { Me } from "@jobagent/shared";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
 import { ApiError, post } from "@/lib/api";
 import { keys, useAuthConfig } from "@/lib/queries";
@@ -77,38 +78,44 @@ function LoginInner() {
   };
 
   return (
-    <main id="main" className="container flex min-h-dvh max-w-md items-center py-12">
+    <main id="main" className="flex min-h-dvh flex-col items-center justify-center px-4 py-12">
       {config.data?.googleClientId && <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" onLoad={() => setGsiReady(true)} />}
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="text-xl">Sign in to AI Job Agent</CardTitle>
-          <CardDescription>Use your Google account. We only read your name, email and profile picture.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
+      <Link href="/" className="mb-8 flex items-center gap-2.5 font-semibold tracking-tight">
+        <BrandMark className="size-8" /> Job Agent
+      </Link>
+      <div className="w-full max-w-sm rounded-2xl border bg-surface p-6 sm:p-8">
+        <h1 className="text-lg font-semibold tracking-tight">Sign in</h1>
+        <p className="mt-1.5 text-sm text-graphite">Use your Google account. We only read your name, email and photo.</p>
+        <div className="mt-6 space-y-6">
           {config.data?.googleClientId ? (
             <div ref={button} className="flex min-h-11 justify-center" />
           ) : (
-            config.data && <Alert tone="warning" title="Google sign-in is not configured">Set GOOGLE_CLIENT_ID in .env to enable it.</Alert>
+            config.data && (
+              <Alert tone="warning" title="Google sign-in isn't set up">
+                Add GOOGLE_CLIENT_ID to .env to turn it on.
+              </Alert>
+            )
           )}
           {config.data?.devLoginEnabled && (
-            <form onSubmit={devLogin} className="space-y-3 border-t pt-5">
+            <form onSubmit={devLogin} className="space-y-3 border-t pt-6">
               <p className="text-sm font-medium">Local development sign-in</p>
               <div className="space-y-1.5">
                 <Label htmlFor="dev-name">Name</Label>
-                <Input id="dev-name" name="name" required defaultValue="Ayush Dixit" />
+                <Input id="dev-name" name="name" required defaultValue="Ayush Dixit" autoComplete="name" />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="dev-email">Email</Label>
-                <Input id="dev-email" name="email" type="email" required defaultValue="dev@example.com" />
+                <Input id="dev-email" name="email" type="email" required defaultValue="dev@example.com" autoComplete="email" />
               </div>
-              <Button type="submit" variant="secondary" className="w-full" loading={busy}>
+              <Button type="submit" variant="outline" className="w-full" loading={busy}>
                 Continue
               </Button>
             </form>
           )}
           {error && <Alert tone="error">{error}</Alert>}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+      <p className="mt-6 max-w-sm text-center text-xs text-graphite">Your resume is stored encrypted and never shared. You can delete your data at any time.</p>
     </main>
   );
 }

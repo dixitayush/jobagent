@@ -254,6 +254,8 @@ export const JobCard = z.object({
   url: z.string(),
   score: z.number().int().nullable(),
   matchLevel: MatchLevel.nullable(),
+  /** Score components (for the fit strip); null when not scored. */
+  fit: MatchBreakdown.nullable(),
   topSkills: z.array(z.string()),
   saved: z.boolean(),
   dismissed: z.boolean(),

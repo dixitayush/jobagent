@@ -1,6 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { MATCH_LEVEL_LABELS, type MatchLevel } from "@jobagent/shared";
 
 export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 
@@ -19,22 +18,24 @@ export function formatDateTime(iso: string | null | undefined, timeZone?: string
   return new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short", timeZone });
 }
 
+/** "Today at 9:00 PM", "Tomorrow at 10:00 AM", else "Sep 27 at 10:00 AM". */
+export function formatWhen(iso: string | null | undefined, timeZone?: string): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  const day = (x: Date) => x.toLocaleDateString("en-CA", { timeZone });
+  const now = new Date();
+  const time = d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit", timeZone });
+  if (day(d) === day(now)) return `Today at ${time}`;
+  if (day(d) === day(new Date(now.getTime() + 86_400_000))) return `Tomorrow at ${time}`;
+  return `${d.toLocaleDateString(undefined, { month: "short", day: "numeric", timeZone })} at ${time}`;
+}
+
 export function formatTime(iso: string | null | undefined, timeZone?: string): string {
   if (!iso) return "—";
   return new Date(iso).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit", timeZone });
 }
 
 export const pretty = (s: string | null | undefined) => (s ? s.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase()) : "");
-
-export const levelLabel = (l: MatchLevel | null | undefined) => (l ? MATCH_LEVEL_LABELS[l] : "Not scored");
-
-export const LEVEL_STYLES: Record<MatchLevel, string> = {
-  VERY_STRONG: "bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200",
-  STRONG: "bg-green-100 text-green-900 dark:bg-green-950 dark:text-green-200",
-  GOOD: "bg-blue-100 text-blue-900 dark:bg-blue-950 dark:text-blue-200",
-  PARTIAL: "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200",
-  LOW: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
-};
 
 export function greeting(): string {
   const h = new Date().getHours();

@@ -6,7 +6,7 @@ import { JobList } from "@/components/job-list";
 export default function JobsPage() {
   return (
     <Suspense>
-      <JobList title="Job feed" description="Jobs from your sources, ranked by how well they match your profile." />
+      <JobList title="Job feed" description="Openings from the companies you follow, ranked by how well they fit your profile." />
     </Suspense>
   );
 }

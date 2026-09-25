@@ -61,7 +61,7 @@ export default function ResumePage() {
 
   return (
     <>
-      <PageHeader title="Resume & profile" description="Your resume is stored encrypted. The extracted profile is what the agent matches against." />
+      <PageHeader title="Resume & profile" description="The agent matches jobs against the profile read from your resume. Your resume file is stored encrypted." />
       <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
         <div className="space-y-6">
           <Card>
@@ -86,11 +86,13 @@ export default function ResumePage() {
                     <li key={r.id} className="flex items-center justify-between gap-3 py-3">
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium">
-                          v{r.version} · {r.fileName}
+                          {r.fileName}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {formatDateTime(r.createdAt)} · {pretty(r.status)}
-                          {r.isActive && " · active"}
+                          <span className="mr-3">Version {r.version}</span>
+                          <span className="mr-3">{formatDateTime(r.createdAt)}</span>
+                          {r.status !== "PARSED" && <span className="mr-3">{r.status === "FAILED" ? "Couldn't be read" : "Reading…"}</span>}
+                          {r.isActive && <span className="font-medium text-fit">In use</span>}
                         </p>
                         {r.error && <p className="text-xs text-destructive">{r.error}</p>}
                       </div>
@@ -116,7 +118,7 @@ export default function ResumePage() {
           <CardHeader>
             <CardTitle>Candidate profile</CardTitle>
             <CardDescription>
-              {profile.data ? `Version ${profile.data.version}${profile.data.editedByUser ? " · edited by you" : " · extracted from your resume"}` : "Appears once your resume is analyzed."}
+              {profile.data ? (profile.data.editedByUser ? `Version ${profile.data.version}, edited by you.` : `Version ${profile.data.version}, read from your resume. Correct anything that's off.`) : "Appears once your resume has been read."}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -184,7 +186,7 @@ export default function ResumePage() {
                     <ul className="flex flex-wrap gap-2">
                       {draft.education.map((e, i) => (
                         <li key={i}>
-                          <Badge>{[e.degree, e.field, e.institution, e.year].filter(Boolean).join(" · ")}</Badge>
+                          <Badge>{[e.degree, e.field, e.institution, e.year].filter(Boolean).join(", ")}</Badge>
                         </li>
                       ))}
                     </ul>

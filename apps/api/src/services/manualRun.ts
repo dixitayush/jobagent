@@ -112,15 +112,15 @@ export async function runManualPipeline(ctx: TenantContext, runKey: string): Pro
 
     const emailStatus: ManualRunState["emailStatus"] =
       digest.outcome === "SENT" ? "SENT" : digest.reason === "EMAIL_DISABLED" ? "DISABLED" : digest.reason === "NO_NEW_MATCHES" ? "NOTHING_NEW" : "FAILED";
-    const parts = [
-      `${newJobs} new or updated job${newJobs === 1 ? "" : "s"} found`,
-      emailStatus === "SENT" ? `emailed you ${digest.jobs} new match${digest.jobs === 1 ? "" : "es"}` : null,
-      emailStatus === "NOTHING_NEW" ? "no new matches to email since your last digest" : null,
-      emailStatus === "DISABLED" ? "email is turned off in Notifications" : null,
-      emailStatus === "FAILED" ? `email not sent (${digest.reason ?? "unknown reason"})` : null,
-      failed.length ? `${failed.length} source${failed.length === 1 ? "" : "s"} couldn't be reached` : null,
+    const sentences = [
+      newJobs ? `Found ${newJobs} new or updated ${newJobs === 1 ? "job" : "jobs"}` : "No new openings since the last check",
+      emailStatus === "SENT" ? `Emailed you ${digest.jobs} new ${digest.jobs === 1 ? "match" : "matches"}` : null,
+      emailStatus === "NOTHING_NEW" ? "Nothing new to email since your last digest" : null,
+      emailStatus === "DISABLED" ? "Email is turned off in Email digests" : null,
+      emailStatus === "FAILED" ? `The email wasn't sent (${digest.reason ?? "unknown reason"})` : null,
+      failed.length ? `${failed.length} ${failed.length === 1 ? "company" : "companies"} couldn't be reached` : null,
     ].filter(Boolean);
-    return await update({ step: "DONE", finishedAt: new Date().toISOString(), matched: digest.matched, emailedJobs: digest.jobs, emailStatus, message: parts.join(" · ") });
+    return await update({ step: "DONE", finishedAt: new Date().toISOString(), matched: digest.matched, emailedJobs: digest.jobs, emailStatus, message: sentences.join(". ") });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     logger.error({ event: "MANUAL_RUN_FAILED", userId: ctx.userId, err: message }, "manual agent run failed");

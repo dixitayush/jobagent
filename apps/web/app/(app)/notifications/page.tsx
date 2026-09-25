@@ -14,7 +14,8 @@ import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ApiError, put } from "@/lib/api";
 import { keys, useMe, useNotifications, useNotificationSettings } from "@/lib/queries";
-import { formatDateTime, levelLabel, pretty } from "@/lib/utils";
+import { levelText } from "@/components/fit-strip";
+import { formatDateTime, pretty } from "@/lib/utils";
 
 /** "2026-09-25:morning" → "Morning", "2026-09-25:manual-153012" → "Manual run". */
 const windowLabel = (w: string) => {
@@ -54,8 +55,8 @@ export default function NotificationsPage() {
   return (
     <>
       <PageHeader
-        title="Notifications"
-        description="Your AI job digest. Only new jobs you haven't been sent before. Use “Run agent now” to check your companies and get an email right away."
+        title="Email digests"
+        description="A short email with new jobs that fit, sent only when there's something new. Use Run agent now to check and get an email straight away."
         actions={
           <>
             <Button variant="outline" onClick={save} loading={saving}>
@@ -77,14 +78,27 @@ export default function NotificationsPage() {
               <Label htmlFor="email-on">Email notifications</Label>
               <Switch id="email-on" label="Email notifications" checked={s.emailEnabled} onChange={(emailEnabled) => setS({ ...s, emailEnabled })} />
             </div>
-            <div className="grid grid-cols-[1fr_auto_auto] items-center gap-3">
-              <Label htmlFor="morning-time">Morning digest</Label>
-              <Input id="morning-time" type="time" className="w-32" value={s.morningTime} disabled={!s.morningEnabled} onChange={(e) => setS({ ...s, morningTime: e.target.value })} />
-              <Switch label="Morning digest" checked={s.morningEnabled} onChange={(morningEnabled) => setS({ ...s, morningEnabled })} />
-              <Label htmlFor="evening-time">Evening digest</Label>
-              <Input id="evening-time" type="time" className="w-32" value={s.eveningTime} disabled={!s.eveningEnabled} onChange={(e) => setS({ ...s, eveningTime: e.target.value })} />
-              <Switch label="Evening digest" checked={s.eveningEnabled} onChange={(eveningEnabled) => setS({ ...s, eveningEnabled })} />
-            </div>
+            {(
+              [
+                ["morning", "Morning email", s.morningTime, s.morningEnabled],
+                ["evening", "Evening email", s.eveningTime, s.eveningEnabled],
+              ] as const
+            ).map(([key, label, time, on]) => (
+              <div key={key} className="flex flex-wrap items-center justify-between gap-3">
+                <Label htmlFor={`${key}-time`}>{label}</Label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    id={`${key}-time`}
+                    type="time"
+                    className="w-32"
+                    value={time}
+                    disabled={!on}
+                    onChange={(e) => setS({ ...s, [`${key}Time`]: e.target.value })}
+                  />
+                  <Switch label={label} checked={on} onChange={(v) => setS({ ...s, [`${key}Enabled`]: v })} />
+                </div>
+              </div>
+            ))}
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label htmlFor="count">Jobs per notification</Label>
@@ -102,7 +116,7 @@ export default function NotificationsPage() {
                 <Select id="level" value={s.minMatchLevel} onChange={(e) => setS({ ...s, minMatchLevel: e.target.value as NotificationSettings["minMatchLevel"] })}>
                   {MatchLevel.options.map((l) => (
                     <option key={l} value={l}>
-                      {levelLabel(l)} and above
+                      {levelText(l)} or better
                     </option>
                   ))}
                 </Select>
@@ -134,7 +148,9 @@ export default function NotificationsPage() {
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">{n.subject ?? `${windowLabel(n.window)} digest`}</p>
                       <p className="text-xs text-muted-foreground">
-                        {windowLabel(n.window)} · {n.window.split(":")[0]} · {n.jobCount} jobs · {formatDateTime(n.sentAt ?? n.createdAt, tz)}
+                        <span className="mr-3">{windowLabel(n.window)}</span>
+                        <span className="mr-3 tabular">{n.jobCount} {n.jobCount === 1 ? "job" : "jobs"}</span>
+                        <span>{formatDateTime(n.sentAt ?? n.createdAt, tz)}</span>
                       </p>
                     </div>
                     <Badge>{n.status === "SKIPPED" ? "No new matches" : pretty(n.status)}</Badge>

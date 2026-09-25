@@ -1,3 +1,4 @@
 import { cn } from "@/lib/utils";
 
-export const Skeleton = ({ className }: { className?: string }) => <div className={cn("animate-pulse rounded-md bg-muted", className)} aria-hidden />;
+/** Loading placeholder with a soft shimmer sweep. */
+export const Skeleton = ({ className }: { className?: string }) => <div className={cn("shimmer rounded-lg bg-muted", className)} aria-hidden />;

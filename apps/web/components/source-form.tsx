@@ -76,7 +76,7 @@ export function SourceForm({ onSaved }: { onSaved?: () => void }) {
           <ul className="space-y-1.5 text-sm">
             {validation.checks.map((c) => (
               <li key={c.label} className="flex items-start gap-2">
-                {c.ok ? <CheckCircle2 className="mt-0.5 size-4 text-success" aria-label="Passed" /> : <XCircle className="mt-0.5 size-4 text-destructive" aria-label="Failed" />}
+                {c.ok ? <CheckCircle2 className="mt-0.5 size-4 text-fit" aria-label="Passed" /> : <XCircle className="mt-0.5 size-4 text-destructive" aria-label="Failed" />}
                 <span>
                   <span className="font-medium">{c.label}</span>
                   {c.detail && <span className="text-muted-foreground"> — {c.detail}</span>}
@@ -84,7 +84,7 @@ export function SourceForm({ onSaved }: { onSaved?: () => void }) {
               </li>
             ))}
           </ul>
-          {validation.sampleTitles.length > 0 && <p className="mt-3 text-xs text-muted-foreground">e.g. {validation.sampleTitles.slice(0, 3).join(" · ")}</p>}
+          {validation.sampleTitles.length > 0 && <p className="mt-3 text-xs text-graphite">Openings found include {validation.sampleTitles.slice(0, 3).join(", ")}.</p>}
         </div>
       )}
       {error && <Alert tone="error">{error}</Alert>}

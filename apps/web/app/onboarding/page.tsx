@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { Check, CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { Me, NotificationSettings, Preferences } from "@jobagent/shared";
@@ -16,6 +16,8 @@ import { Label, Select } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { ApiError, post, put } from "@/lib/api";
 import { keys, useMe, useNotificationSettings, useOverview, usePreferences, useProfile, useResumes, useSources } from "@/lib/queries";
+import { BrandMark } from "@/components/brand";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const STEPS = ["Welcome", "Resume", "Locations", "Roles", "Companies", "Notifications", "Finish"] as const;
@@ -76,12 +78,23 @@ export default function Onboarding() {
   const suggestions = profile.data?.profile.jobTitles ?? [];
 
   return (
-    <main id="main" className="container max-w-3xl py-10">
-      <ol className="mb-8 flex flex-wrap gap-2" aria-label="Onboarding progress">
+    <main id="main" className="mx-auto max-w-3xl px-4 pb-16 pt-6 sm:px-6">
+      <div className="mb-10 flex items-center justify-between">
+        <span className="flex items-center gap-2.5 font-semibold tracking-tight">
+          <BrandMark className="size-7" /> Job Agent
+        </span>
+        <ThemeToggle />
+      </div>
+      <p className="text-sm text-graphite" aria-live="polite">
+        Step {step + 1} of {STEPS.length}: {STEPS[step]}
+      </p>
+      <ol className="mb-8 mt-3 grid grid-cols-7 gap-1.5" aria-label="Setup progress">
         {STEPS.map((s, i) => (
-          <li key={s} aria-current={i === step ? "step" : undefined} className={cn("flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium", i === step ? "border-primary bg-primary text-primary-foreground" : i < step ? "bg-secondary" : "text-muted-foreground")}>
-            {i < step && <Check className="size-3" aria-hidden />}
-            {i + 1}. {s}
+          <li key={s} aria-current={i === step ? "step" : undefined} className={cn("h-1.5 rounded-full", i < step ? "bg-fit" : i === step ? "bg-ink" : "bg-rule")}>
+            <span className="sr-only">
+              {s}
+              {i < step ? " (done)" : i === step ? " (current)" : ""}
+            </span>
           </li>
         ))}
       </ol>
@@ -90,7 +103,7 @@ export default function Onboarding() {
         {step === 0 && (
           <>
             <CardHeader>
-              <CardTitle className="text-2xl">Welcome{me.data ? `, ${me.data.name.split(" ")[0]}` : ""}</CardTitle>
+              <CardTitle className="text-xl">Welcome{me.data ? `, ${me.data.name.split(" ")[0]}` : ""}</CardTitle>
               <CardDescription>Tell us about your job search. It takes about two minutes.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 text-sm text-muted-foreground">
@@ -156,7 +169,7 @@ export default function Onboarding() {
                 <ul className="space-y-1 text-sm">
                   {sources.data.map((s) => (
                     <li key={s.id} className="flex items-center gap-2">
-                      <CheckCircle2 className="size-4 text-success" aria-hidden /> {s.companyName}
+                      <CheckCircle2 className="size-4 text-fit" aria-hidden /> {s.companyName}
                     </li>
                   ))}
                 </ul>
@@ -173,11 +186,11 @@ export default function Onboarding() {
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="flex items-center justify-between gap-4">
-                <Label htmlFor="m">Morning digest · {notif.morningTime}</Label>
+                <Label htmlFor="m">Morning email at {notif.morningTime}</Label>
                 <Switch id="m" label="Morning digest" checked={notif.morningEnabled} onChange={(morningEnabled) => setNotif({ ...notif, morningEnabled })} />
               </div>
               <div className="flex items-center justify-between gap-4">
-                <Label htmlFor="e">Evening digest · {notif.eveningTime}</Label>
+                <Label htmlFor="e">Evening email at {notif.eveningTime}</Label>
                 <Switch id="e" label="Evening digest" checked={notif.eveningEnabled} onChange={(eveningEnabled) => setNotif({ ...notif, eveningEnabled })} />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -214,7 +227,7 @@ export default function Onboarding() {
           </div>
         )}
         {step < 6 && (
-          <div className="flex justify-between border-t p-5">
+          <div className="flex justify-between border-t px-5 py-4 sm:px-6">
             <Button variant="ghost" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0}>
               Back
             </Button>
@@ -265,7 +278,7 @@ function FirstRun({ active, onDone }: { active: boolean; onDone: () => void }) {
         <ul className="space-y-2 text-sm" aria-live="polite">
           {items.map(([ok, label]) => (
             <li key={String(label)} className="flex items-center gap-2">
-              {ok ? <CheckCircle2 className="size-4 text-success" aria-hidden /> : <Loader2 className="size-4 animate-spin text-muted-foreground" aria-hidden />}
+              {ok ? <CheckCircle2 className="size-4 text-fit" aria-hidden /> : <Loader2 className="size-4 animate-spin text-muted-foreground" aria-hidden />}
               {label}
             </li>
           ))}

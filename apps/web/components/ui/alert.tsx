@@ -1,17 +1,25 @@
+import { AlertCircle, CheckCircle2, Info, TriangleAlert } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-export function Alert({ tone = "info", title, children, className }: { tone?: "info" | "error" | "warning" | "success"; title?: string; children?: ReactNode; className?: string }) {
-  const tones = {
-    info: "border-border bg-muted/50",
-    error: "border-destructive/40 bg-destructive/10 text-destructive",
-    warning: "border-warning/40 bg-warning/10",
-    success: "border-success/40 bg-success/10",
-  };
+const TONES = {
+  info: { box: "border-rule bg-surface", icon: Info, iconClass: "text-graphite" },
+  error: { box: "border-danger/30 bg-danger/5", icon: AlertCircle, iconClass: "text-danger" },
+  warning: { box: "border-caution/30 bg-caution/5", icon: TriangleAlert, iconClass: "text-caution" },
+  success: { box: "border-fit/30 bg-fit/5", icon: CheckCircle2, iconClass: "text-fit" },
+};
+
+export function Alert({ tone = "info", title, children, className, action }: { tone?: keyof typeof TONES; title?: string; children?: ReactNode; className?: string; action?: ReactNode }) {
+  const t = TONES[tone];
+  const Icon = t.icon;
   return (
-    <div role={tone === "error" ? "alert" : "status"} className={cn("rounded-lg border p-4 text-sm", tones[tone], className)}>
-      {title && <p className="font-medium">{title}</p>}
-      {children && <div className={cn(title && "mt-1", "text-foreground/80")}>{children}</div>}
+    <div role={tone === "error" ? "alert" : "status"} className={cn("flex gap-3 rounded-xl border p-4 text-sm", t.box, className)}>
+      <Icon className={cn("mt-0.5 size-4 shrink-0", t.iconClass)} aria-hidden />
+      <div className="min-w-0 flex-1">
+        {title && <p className="font-medium text-ink">{title}</p>}
+        {children && <div className={cn("text-graphite", title && "mt-1")}>{children}</div>}
+      </div>
+      {action && <div className="shrink-0">{action}</div>}
     </div>
   );
 }

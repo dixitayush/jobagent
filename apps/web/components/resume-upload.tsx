@@ -54,7 +54,7 @@ export function ResumeUpload({ onUploaded, compact }: { onUploaded?: (r: Resume)
         <Upload className="size-6 text-muted-foreground" aria-hidden />
         <div>
           <p className="text-sm font-medium">{busy ? "Uploading…" : "Drop your resume here"}</p>
-          <p className="text-xs text-muted-foreground">PDF, DOCX or TXT · up to 5 MB · stored encrypted</p>
+          <p className="text-xs text-graphite">PDF, DOCX or TXT, up to 5 MB. Stored encrypted.</p>
         </div>
         <label className={cn("inline-flex h-9 cursor-pointer items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90 focus-within:ring-2 focus-within:ring-ring", busy && "pointer-events-none opacity-50")}>
           Choose file

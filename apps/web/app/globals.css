@@ -2,61 +2,188 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Design tokens — "paper and ink" with a teal fit signal and a highlighter for what's new.
+ * Values are HSL channels so Tailwind can apply opacity (e.g. bg-fit/10).
+ * Theme: light by default, dark via .dark on <html> (set before paint by the inline script in layout).
+ */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --primary: 222 47% 11%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 40%;
-    --accent: 210 40% 94%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 72% 45%;
+    --paper: 216 22% 96%; /* #F4F6F8 */
+    --surface: 0 0% 100%; /* #FFFFFF */
+    --ink: 220 38% 15%; /* #172033 */
+    --graphite: 220 13% 40%; /* #586173 */
+    --rule: 216 16% 88%; /* #DCE0E6 */
+    --fit: 173 79% 27%; /* #0E7A6D */
+    --fit-soft: 170 45% 92%;
+    --marker: 47 100% 70%; /* #FFE066 */
+    --caution: 35 88% 38%;
+    --danger: 4 76% 40%;
+
+    /* shadcn-compatible aliases used by the component primitives */
+    --background: var(--paper);
+    --foreground: var(--ink);
+    --card: var(--surface);
+    --card-foreground: var(--ink);
+    --primary: var(--ink);
+    --primary-foreground: 0 0% 100%;
+    --secondary: 216 20% 92%;
+    --secondary-foreground: var(--ink);
+    --muted: 216 20% 93%;
+    --muted-foreground: var(--graphite);
+    --accent: 216 22% 92%;
+    --accent-foreground: var(--ink);
+    --destructive: var(--danger);
     --destructive-foreground: 0 0% 100%;
-    --success: 158 64% 30%;
-    --warning: 32 90% 38%;
-    --border: 214 32% 89%;
-    --input: 214 32% 85%;
-    --ring: 222 47% 30%;
-    --radius: 0.625rem;
+    --success: var(--fit);
+    --warning: var(--caution);
+    --border: var(--rule);
+    --input: 216 14% 82%;
+    --ring: var(--fit);
+    --radius: 0.75rem;
+    color-scheme: light;
   }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --background: 224 30% 8%;
-      --foreground: 210 40% 96%;
-      --card: 224 28% 11%;
-      --card-foreground: 210 40% 96%;
-      --primary: 210 40% 96%;
-      --primary-foreground: 222 47% 11%;
-      --secondary: 217 25% 18%;
-      --secondary-foreground: 210 40% 96%;
-      --muted: 217 25% 16%;
-      --muted-foreground: 215 20% 70%;
-      --accent: 217 25% 20%;
-      --accent-foreground: 210 40% 96%;
-      --destructive: 0 70% 58%;
-      --destructive-foreground: 0 0% 100%;
-      --success: 152 60% 52%;
-      --warning: 38 92% 60%;
-      --border: 217 25% 22%;
-      --input: 217 25% 26%;
-      --ring: 210 40% 80%;
-    }
+  .dark {
+    --paper: 220 20% 9%; /* #12151B */
+    --surface: 219 21% 13%; /* #1A1F28 */
+    --ink: 220 20% 92%; /* #E6E9EF */
+    --graphite: 218 11% 64%; /* #99A1AF */
+    --rule: 218 16% 20%; /* #2B313C */
+    --fit: 171 53% 50%; /* #3DC2AE */
+    --fit-soft: 172 40% 16%;
+    --marker: 46 73% 59%; /* #E3C04A */
+    --caution: 38 85% 58%;
+    --danger: 4 80% 64%;
+
+    --primary-foreground: 220 20% 9%;
+    --secondary: 219 18% 18%;
+    --muted: 219 18% 16%;
+    --accent: 219 18% 19%;
+    --destructive-foreground: 220 20% 9%;
+    --input: 218 14% 26%;
+    color-scheme: dark;
   }
 
   * {
     @apply border-border;
   }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
   body {
     @apply bg-background text-foreground antialiased;
+    font-feature-settings: "ss01", "cv11";
+    text-rendering: optimizeLegibility;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background: hsl(var(--marker) / 0.6);
+    color: hsl(var(--ink));
   }
   :focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  /* Highlighter stroke: marks only what's new. */
+  .marker {
+    background: linear-gradient(transparent 55%, hsl(var(--marker) / 0.85) 55%, hsl(var(--marker) / 0.85) 92%, transparent 92%);
+    padding: 0 0.15em;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+  .dark .marker {
+    background: linear-gradient(transparent 55%, hsl(var(--marker) / 0.35) 55%, hsl(var(--marker) / 0.35) 92%, transparent 92%);
+  }
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Loading shimmer */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, hsl(var(--surface) / 0.7), transparent);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Theme switch crossfade (toggled briefly by the theme control) */
+html.theme-changing,
+html.theme-changing *,
+html.theme-changing *::before,
+html.theme-changing *::after {
+  transition:
+    background-color 300ms ease,
+    border-color 300ms ease,
+    color 300ms ease,
+    fill 300ms ease !important;
+}
+
+/* Ambient glow behind the landing preview: slow drift, purely decorative. */
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-3%, 4%, 0) scale(1.06);
+  }
+}
+.animate-drift {
+  animation: drift 14s ease-in-out infinite;
+}
+
+/* Only motion that answers an action (toasts, sheets, progress); respect reduced motion. */
+@keyframes sheet-in {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+}
+@keyframes toast-in {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+}
+.animate-sheet-in {
+  animation: sheet-in 180ms ease-out;
+}
+.animate-toast-in {
+  animation: toast-in 160ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

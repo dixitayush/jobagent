@@ -72,7 +72,7 @@ export default function AdminPage() {
           ].map(([label, value]) => (
             <Card key={String(label)}>
               <CardContent className="p-4">
-                <p className="text-xl font-semibold tabular-nums">{String(value ?? 0)}</p>
+                <p className="text-xl font-semibold">{String(value ?? 0)}</p>
                 <p className="text-xs text-muted-foreground">{String(label)}</p>
               </CardContent>
             </Card>
@@ -172,7 +172,7 @@ export default function AdminPage() {
                     {s.health.lastError && <p className="max-w-xs truncate text-xs text-destructive" title={s.health.lastError}>{s.health.lastError}</p>}
                   </td>
                   <td>
-                    <Badge className={cn(s.status === "ACTIVE" && "bg-success/15", s.status === "DEGRADED" && "bg-warning/15")}>{s.status === "ACTIVE" ? "Healthy" : pretty(s.status)}</Badge>
+                    <Badge className={cn(s.status === "ACTIVE" && "border-fit/30 text-fit", s.status === "DEGRADED" && "border-caution/30 text-caution")}>{s.status === "ACTIVE" ? "Healthy" : pretty(s.status)}</Badge>
                   </td>
                   <td className="text-xs">{timeAgo(s.health.lastCrawledAt)}</td>
                   <td className="tabular-nums">{s.health.jobsFound}</td>
