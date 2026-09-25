@@ -1,0 +1,459 @@
+{
+ "items": [
+  {
+   "SearchId": 1,
+   "Keyword": null,
+   "CorrectedKeyword": null,
+   "UseExactKeywordFlag": false,
+   "SuggestedKeyword": null,
+   "ExecuteSpellCheckFlag": true,
+   "Location": null,
+   "LocationId": null,
+   "Radius": 0,
+   "RadiusUnit": "MI",
+   "SelectedTitlesFacet": null,
+   "SelectedCategoriesFacet": null,
+   "SelectedPostingDatesFacet": null,
+   "SelectedLocationsFacet": null,
+   "LastSelectedFacet": null,
+   "Offset": 0,
+   "Limit": 25,
+   "SortBy": "POSTING_DATES_DESC",
+   "TotalJobsCount": 2,
+   "Latitude": null,
+   "Longitude": null,
+   "SiteNumber": "CX_1",
+   "JobFamilyId": null,
+   "PostingStartDate": null,
+   "PostingEndDate": null,
+   "SelectedWorkLocationsFacet": null,
+   "RequisitionId": null,
+   "CandidateNumber": null,
+   "WorkLocationZipCode": null,
+   "WorkLocationCountryCode": null,
+   "SelectedFlexFieldsFacets": null,
+   "OrganizationId": null,
+   "SelectedOrganizationsFacet": null,
+   "UserTargetFacetName": null,
+   "UserTargetFacetInputTerm": null,
+   "HotJobFlag": null,
+   "WorkplaceType": null,
+   "SelectedWorkplaceTypesFacet": null,
+   "BotQRShortCode": null,
+   "requisitionList": [
+    {
+     "Id": "26011138",
+     "Title": "Customer Service Analyst",
+     "PostedDate": "2026-09-25",
+     "PostingEndDate": null,
+     "Language": "US",
+     "PrimaryLocationCountry": "IN",
+     "GeographyId": 300000032710650,
+     "HotJobFlag": false,
+     "WorkplaceTypeCode": "ORA_HYBRID",
+     "JobFamily": null,
+     "JobFunction": null,
+     "WorkerType": null,
+     "ContractType": null,
+     "ManagerLevel": null,
+     "JobSchedule": null,
+     "JobShift": null,
+     "JobType": null,
+     "StudyLevel": null,
+     "DomesticTravelRequired": null,
+     "InternationalTravelRequired": null,
+     "WorkDurationYears": null,
+     "WorkDurationMonths": null,
+     "WorkHours": null,
+     "WorkDays": null,
+     "LegalEmployer": null,
+     "BusinessUnit": null,
+     "Department": null,
+     "Organization": null,
+     "BusinessUnitId": 300000079628576,
+     "LegalEmployerId": 300000007507893,
+     "OrganizationId": 300000079628576,
+     "MediaThumbURL": null,
+     "ShortDescriptionStr": "",
+     "PrimaryLocation": "Gurugram, HR, India",
+     "Distance": 1790294400000.0,
+     "TrendingFlag": true,
+     "BeFirstToApplyFlag": false,
+     "Relevancy": 9,
+     "WorkplaceType": "Hybrid",
+     "ExternalQualificationsStr": null,
+     "ExternalResponsibilitiesStr": null,
+     "secondaryLocations": []
+    },
+    {
+     "Id": "26011297",
+     "Title": "Associate-Tech Operations Engineering",
+     "PostedDate": "2026-09-25",
+     "PostingEndDate": null,
+     "Language": "US",
+     "PrimaryLocationCountry": "GB",
+     "GeographyId": 300000050634837,
+     "HotJobFlag": false,
+     "WorkplaceTypeCode": "ORA_HYBRID",
+     "JobFamily": null,
+     "JobFunction": null,
+     "WorkerType": null,
+     "ContractType": null,
+     "ManagerLevel": null,
+     "JobSchedule": null,
+     "JobShift": null,
+     "JobType": null,
+     "StudyLevel": null,
+     "DomesticTravelRequired": null,
+     "InternationalTravelRequired": null,
+     "WorkDurationYears": null,
+     "WorkDurationMonths": null,
+     "WorkHours": null,
+     "WorkDays": null,
+     "LegalEmployer": null,
+     "BusinessUnit": null,
+     "Department": null,
+     "Organization": null,
+     "BusinessUnitId": 300000079628496,
+     "LegalEmployerId": 300000007507802,
+     "OrganizationId": 300000079628496,
+     "MediaThumbURL": null,
+     "ShortDescriptionStr": "",
+     "PrimaryLocation": "LONDON, LONDON, United Kingdom",
+     "Distance": 1790294400000.0,
+     "TrendingFlag": false,
+     "BeFirstToApplyFlag": false,
+     "Relevancy": 9,
+     "WorkplaceType": "Hybrid",
+     "ExternalQualificationsStr": null,
+     "ExternalResponsibilitiesStr": null,
+     "secondaryLocations": []
+    }
+   ],
+   "categoriesFacet": [
+    {
+     "Id": 300000081299474,
+     "Name": "Technology",
+     "TotalCount": 165
+    },
+    {
+     "Id": 300000081299414,
+     "Name": "Administration/Management Info",
+     "TotalCount": 45
+    },
+    {
+     "Id": 300000081299486,
+     "Name": "Risk",
+     "TotalCount": 41
+    },
+    {
+     "Id": 300000081299465,
+     "Name": "Sales/Relationship Management",
+     "TotalCount": 37
+    },
+    {
+     "Id": 300000380178024,
+     "Name": "Product",
+     "TotalCount": 35
+    },
+    {
+     "Id": 300000081299501,
+     "Name": "Operations/Customer Service",
+     "TotalCount": 34
+    },
+    {
+     "Id": 300000081296038,
+     "Name": "Marketing",
+     "TotalCount": 33
+    },
+    {
+     "Id": 300000081299411,
+     "Name": "Finance",
+     "TotalCount": 21
+    },
+    {
+     "Id": 300000573321731,
+     "Name": "Data Mgmt and Analytics",
+     "TotalCount": 21
+    },
+    {
+     "Id": 300000081296044,
+     "Name": "Compliance, Control & Legal",
+     "TotalCount": 18
+    }
+   ],
+   "locationsFacet": [
+    {
+     "Id": 300000000229164,
+     "Name": "United States",
+     "TotalCount": 314
+    },
+    {
+     "Id": 300000007649033,
+     "Name": "NY, United States",
+     "TotalCount": 160
+    },
+    {
+     "Id": 300000007686239,
+     "Name": "New York, NY, United States",
+     "TotalCount": 158
+    },
+    {
+     "Id": 300000007649003,
+     "Name": "AZ, United States",
+     "TotalCount": 100
+    },
+    {
+     "Id": 300000007667464,
+     "Name": "Phoenix, AZ, United States",
+     "TotalCount": 98
+    },
+    {
+     "Id": 300000000228786,
+     "Name": "India",
+     "TotalCount": 70
+    },
+    {
+     "Id": 300000032698665,
+     "Name": "HR, India",
+     "TotalCount": 53
+    },
+    {
+     "Id": 300000032710650,
+     "Name": "Gurugram, HR, India",
+     "TotalCount": 53
+    },
+    {
+     "Id": 300000007649010,
+     "Name": "FL, United States",
+     "TotalCount": 49
+    },
+    {
+     "Id": 300000007670739,
+     "Name": "Sunrise, FL, United States",
+     "TotalCount": 47
+    }
+   ],
+   "postingDatesFacet": [
+    {
+     "Id": 7,
+     "Name": "Less than 7 days",
+     "TotalCount": 212
+    },
+    {
+     "Id": 30,
+     "Name": "Less than 30 days",
+     "TotalCount": 418
+    },
+    {
+     "Id": 31,
+     "Name": "Greater than 30 days",
+     "TotalCount": 93
+    }
+   ],
+   "titlesFacet": [
+    {
+     "Id": "ENA",
+     "Name": "Engineering & Architecture",
+     "TotalCount": 100
+    },
+    {
+     "Id": "UNC",
+     "Name": "Unclass",
+     "TotalCount": 88
+    },
+    {
+     "Id": "PRD",
+     "Name": "Product",
+     "TotalCount": 40
+    },
+    {
+     "Id": "RSK",
+     "Name": "Risk Management",
+     "TotalCount": 28
+    },
+    {
+     "Id": "SLS",
+     "Name": "Sales",
+     "TotalCount": 25
+    },
+    {
+     "Id": "CYS",
+     "Name": "Cybersecurity",
+     "TotalCount": 23
+    },
+    {
+     "Id": "DMA",
+     "Name": "Data Mgmt and Analytics",
+     "TotalCount": 23
+    },
+    {
+     "Id": "OPS",
+     "Name": "Operations",
+     "TotalCount": 19
+    },
+    {
+     "Id": "MKT",
+     "Name": "Marketing",
+     "TotalCount": 16
+    },
+    {
+     "Id": "CC",
+     "Name": "Customer Care",
+     "TotalCount": 14
+    }
+   ],
+   "workLocationsFacet": [
+    {
+     "Id": 300000080896907,
+     "Name": "New York-Amex Tower WFC-35 Hr",
+     "TotalCount": 154
+    },
+    {
+     "Id": 300000080574221,
+     "Name": "AEDR Desert Ridge OB4 - Canyon",
+     "TotalCount": 46
+    },
+    {
+     "Id": 300000080897003,
+     "Name": "AEDR Desert Ridge OB1-Camelback",
+     "TotalCount": 42
+    },
+    {
+     "Id": 300000080892692,
+     "Name": "Sunrise Campus",
+     "TotalCount": 37
+    },
+    {
+     "Id": 300000080557217,
+     "Name": "Amex India Campus, 74 A",
+     "TotalCount": 36
+    },
+    {
+     "Id": 300000860231556,
+     "Name": "Charlotte Hybrid-600 Tryon",
+     "TotalCount": 27
+    },
+    {
+     "Id": 300000080896901,
+     "Name": "AEDR Desert Ridge OB2-McDowell",
+     "TotalCount": 23
+    },
+    {
+     "Id": 300000080903013,
+     "Name": "Cyber City-Bldg 5",
+     "TotalCount": 18
+    },
+    {
+     "Id": 300000080557014,
+     "Name": "BGC Corporate Center 2",
+     "TotalCount": 16
+    },
+    {
+     "Id": 300000080900583,
+     "Name": "Towne Ridge Center III",
+     "TotalCount": 15
+    }
+   ],
+   "flexFieldsFacet": [
+    {
+     "Name": "AttributeChar6",
+     "Label": "Career Area"
+    }
+   ],
+   "organizationsFacet": [
+    {
+     "Id": 300000079628496,
+     "Name": "A0004 - Enterprise Tech Services",
+     "TotalCount": 174
+    },
+    {
+     "Id": 300000079629536,
+     "Name": "A0017 - Global Merchant & Network Svcs",
+     "TotalCount": 47
+    },
+    {
+     "Id": 300000079628576,
+     "Name": "A0005 - Global Servicing",
+     "TotalCount": 43
+    },
+    {
+     "Id": 300000079630096,
+     "Name": "A0024 - US Consumer Services",
+     "TotalCount": 28
+    },
+    {
+     "Id": 300000079629936,
+     "Name": "A0022 - Global Commercial Services",
+     "TotalCount": 26
+    },
+    {
+     "Id": 300000079629456,
+     "Name": "A0016 - Global Risk & Compliance",
+     "TotalCount": 24
+    },
+    {
+     "Id": 300000079629856,
+     "Name": "A0021 - Credit and Fraud Risk",
+     "TotalCount": 22
+    },
+    {
+     "Id": 300000079630496,
+     "Name": "A0029 - Intl Card Services",
+     "TotalCount": 15
+    },
+    {
+     "Id": 300000079628816,
+     "Name": "A0008 - Finance",
+     "TotalCount": 14
+    },
+    {
+     "Id": 300000079629056,
+     "Name": "A0011 - Colleague Experience Group",
+     "TotalCount": 7
+    }
+   ],
+   "workplaceTypesFacet": [
+    {
+     "Id": "ORA_HYBRID",
+     "Name": "Hybrid",
+     "TotalCount": 464
+    },
+    {
+     "Id": "ORA_ON_SITE",
+     "Name": "On-site",
+     "TotalCount": 25
+    },
+    {
+     "Id": "ORA_REMOTE",
+     "Name": "Remote",
+     "TotalCount": 22
+    }
+   ]
+  }
+ ],
+ "count": 1,
+ "hasMore": false,
+ "limit": 200,
+ "offset": 0,
+ "links": [
+  {
+   "rel": "self",
+   "href": "https://egug.fa.us2.oraclecloud.com:443/hcmRestApi/resources/11.13.18.05/recruitingCEJobRequisitions",
+   "name": "recruitingCEJobRequisitions",
+   "kind": "collection"
+  },
+  {
+   "rel": "action",
+   "href": "https://egug.fa.us2.oraclecloud.com:443/hcmRestApi/resources/11.13.18.05/recruitingCEJobRequisitions/action/getRequisitionsLocationCoordinates",
+   "name": "getRequisitionsLocationCoordinates",
+   "kind": "other"
+  },
+  {
+   "rel": "action",
+   "href": "https://egug.fa.us2.oraclecloud.com:443/hcmRestApi/resources/11.13.18.05/recruitingCEJobRequisitions/action/getRequisitionDetailsForMap",
+   "name": "getRequisitionDetailsForMap",
+   "kind": "other"
+  }
+ ]
+}

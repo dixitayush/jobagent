@@ -1,0 +1,169 @@
+name: jobagent
+
+# Public traffic never reaches this stack directly. Traefik on the `proxy`
+# network is the only process with host ports. Caddy joins `proxy`;
+# api/worker/scheduler/web/db/redis stay on `jobagent_internal` only.
+#
+#   Internet → Traefik (gateway/) → Caddy :80 → /api,/health → api:4000
+#                                              → everything else → web:3000
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-app: &app
+  image: jobagent-api:latest
+  restart: unless-stopped
+  env_file: .env
+  environment: &app-environment
+    NODE_ENV: production
+    APP_ENV: production
+    DATABASE_URL: postgres://jobagent:${POSTGRES_PASSWORD}@db:5432/jobagent
+    REDIS_URL: redis://redis:6379
+    STORAGE_LOCAL_DIR: /data/uploads
+    APP_URL: ${APP_URL:?Set APP_URL in .env}
+    API_PUBLIC_URL: ${APP_URL}
+    CORS_ORIGINS: ${APP_URL}
+    AUTH_DEV_LOGIN: "false"
+    CRAWL_ALLOW_PRIVATE_NETWORKS: "false"
+  logging: *logging
+  networks:
+    - jobagent
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: jobagent
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: jobagent
+    volumes:
+      - jobagent_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jobagent -d jobagent"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    logging: *logging
+    networks:
+      - jobagent
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # BullMQ queues + scheduler state: persist (AOF) and never evict keys.
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - jobagent_redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    logging: *logging
+    networks:
+      - jobagent
+
+  # One-shot: applies SQL migrations and seeds reference data, then exits.
+  migrate:
+    <<: *app
+    build:
+      context: .
+      target: api
+    restart: "no"
+    command: ["node", "dist/db/seed.js"]
+    depends_on:
+      db: { condition: service_healthy }
+
+  api:
+    <<: *app
+    volumes:
+      - jobagent_uploads:/data/uploads
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+    stop_grace_period: 20s
+
+  worker:
+    <<: *app
+    command: ["node", "dist/worker.js"]
+    environment:
+      <<: *app-environment
+      SERVICE_NAME: worker
+    volumes:
+      - jobagent_uploads:/data/uploads
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:9464/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+    # Let in-flight crawls / LLM calls / emails finish on redeploy.
+    stop_grace_period: 60s
+
+  scheduler:
+    <<: *app
+    command: ["node", "dist/scheduler.js"]
+    environment:
+      <<: *app-environment
+      SERVICE_NAME: scheduler
+    healthcheck:
+      disable: true
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+
+  web:
+    build:
+      context: .
+      target: web
+    image: jobagent-web:latest
+    restart: unless-stopped
+    depends_on:
+      api: { condition: service_healthy }
+    logging: *logging
+    networks:
+      - jobagent
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    expose:
+      - "80"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      api: { condition: service_healthy }
+      web: { condition: service_healthy }
+    logging: *logging
+    networks:
+      - jobagent
+      - proxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.http.routers.jobagent.rule=Host(`${JOBAGENT_HOST:-jobagent.ayushdixit.work}`)
+      - traefik.http.routers.jobagent.entrypoints=websecure
+      - traefik.http.routers.jobagent.tls=true
+      - traefik.http.routers.jobagent.tls.certresolver=le
+      - traefik.http.routers.jobagent.middlewares=https-fwd@file,secure-headers@file
+      - traefik.http.services.jobagent.loadbalancer.server.port=80
+      - traefik.http.services.jobagent.loadbalancer.passhostheader=true
+
+networks:
+  jobagent:
+    name: jobagent_internal
+    driver: bridge
+  proxy:
+    external: true
+    name: proxy
+
+volumes:
+  jobagent_pg:
+  jobagent_redis:
+  jobagent_uploads:

@@ -1,0 +1,56 @@
+{
+ "status": 200,
+ "error": {
+  "message": "",
+  "body": ""
+ },
+ "data": {
+  "positions": [
+   {
+    "id": 563980770771033,
+    "displayJobId": "JR121988",
+    "name": "Director - Process Management",
+    "locations": [
+     "Gurugram, Hary\u0101na, India"
+    ],
+    "standardizedLocations": [
+     "Gurugram, HR, IN"
+    ],
+    "postedTs": 1790251200,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Process Transformation",
+    "creationTs": 1790294400,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR121988",
+    "positionUrl": "/careers/job/563980770771033"
+   },
+   {
+    "id": 563980770290575,
+    "displayJobId": "JR120116",
+    "name": "Debt Capital Markets, Private Placements - Analyst/Associate",
+    "locations": [
+     "New York, New York, United States of America"
+    ],
+    "standardizedLocations": [
+     "New York, NY, US"
+    ],
+    "postedTs": 1790251200,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Corporate Finance",
+    "creationTs": 1783036800,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR120116",
+    "positionUrl": "/careers/job/563980770290575"
+   }
+  ],
+  "count": 2,
+  "sortBy": "timestamp"
+ },
+ "metadata": null
+}

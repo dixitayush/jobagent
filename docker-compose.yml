@@ -1,0 +1,137 @@
+# Local laptop.
+#
+#   docker compose up -d                          Postgres(pgvector) :5435 + Redis :6381 for `npm run dev`
+#   docker compose --profile full up -d --build   the whole production stack at http://localhost:8081
+#   ./deploy-local.sh                             the same, plus migrations, health wait and URLs
+#
+# Host ports differ from Chaibook (5433/6379) and Hideout (5434/6380) so all can run side by side.
+# The VPS uses docker-compose.prod.yml (no published ports, behind Traefik).
+name: jobagent-local
+
+x-app-env: &app-env
+  env_file: .env
+  environment: &app-environment
+    NODE_ENV: production
+    APP_ENV: local
+    DATABASE_URL: postgres://${POSTGRES_USER:-jobagent}:${POSTGRES_PASSWORD:-jobagent}@db:5432/${POSTGRES_DB:-jobagent}
+    REDIS_URL: redis://redis:6379
+    APP_URL: http://localhost:${JOBAGENT_LOCAL_PORT:-8081}
+    API_PUBLIC_URL: http://localhost:${JOBAGENT_LOCAL_PORT:-8081}
+    CORS_ORIGINS: http://localhost:${JOBAGENT_LOCAL_PORT:-8081}
+    STORAGE_LOCAL_DIR: /data/uploads
+    # Local stack only: sign in without Google credentials. The API refuses this when APP_ENV=production.
+    AUTH_DEV_LOGIN: ${AUTH_DEV_LOGIN:-true}
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-jobagent}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-jobagent}
+      POSTGRES_DB: ${POSTGRES_DB:-jobagent}
+    ports:
+      - "5435:5432"
+    volumes:
+      - jobagent_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-jobagent} -d ${POSTGRES_DB:-jobagent}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # BullMQ queues live here: persist them and never evict keys.
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    ports:
+      - "6381:6379"
+    volumes:
+      - jobagent_redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  migrate:
+    profiles: ["full"]
+    build: { context: ., target: api }
+    image: jobagent-api:local
+    <<: *app-env
+    command: ["node", "dist/db/seed.js"]
+    restart: "no"
+    depends_on:
+      db: { condition: service_healthy }
+
+  api:
+    profiles: ["full"]
+    image: jobagent-api:local
+    <<: *app-env
+    restart: unless-stopped
+    volumes:
+      - jobagent_uploads:/data/uploads
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+
+  worker:
+    profiles: ["full"]
+    image: jobagent-api:local
+    <<: *app-env
+    environment:
+      <<: *app-environment
+      SERVICE_NAME: worker
+    command: ["node", "dist/worker.js"]
+    restart: unless-stopped
+    volumes:
+      - jobagent_uploads:/data/uploads
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:9464/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+
+  scheduler:
+    profiles: ["full"]
+    image: jobagent-api:local
+    <<: *app-env
+    environment:
+      <<: *app-environment
+      SERVICE_NAME: scheduler
+    command: ["node", "dist/scheduler.js"]
+    restart: unless-stopped
+    healthcheck:
+      disable: true
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+
+  web:
+    profiles: ["full"]
+    build: { context: ., target: web }
+    image: jobagent-web:local
+    restart: unless-stopped
+    depends_on:
+      api: { condition: service_healthy }
+
+  caddy:
+    profiles: ["full"]
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "${JOBAGENT_LOCAL_PORT:-8081}:80"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      api: { condition: service_healthy }
+      web: { condition: service_healthy }
+
+volumes:
+  jobagent_pg:
+  jobagent_redis:
+  jobagent_uploads:

@@ -1,0 +1,19 @@
+{
+  "jobs": [
+    {
+      "id": "7f0e1c2a-aaaa-4bbb-8ccc-000000000009",
+      "title": "Machine Learning Engineer",
+      "location": "Hyderabad",
+      "secondaryLocations": [{ "location": "Bengaluru" }],
+      "department": "AI",
+      "isListed": true,
+      "isRemote": false,
+      "employmentType": "FullTime",
+      "descriptionHtml": "<p>PyTorch, Python, and LLMs. 2+ years experience.</p>",
+      "publishedAt": "2026-09-23T08:00:00.000Z",
+      "jobUrl": "https://jobs.ashbyhq.com/initech/7f0e1c2a-aaaa-4bbb-8ccc-000000000009",
+      "compensation": { "compensationTierSummary": "₹30L – ₹45L" }
+    },
+    { "id": "hidden", "title": "Unlisted", "isListed": false, "jobUrl": "https://jobs.ashbyhq.com/initech/hidden" }
+  ]
+}

@@ -1,0 +1,255 @@
+{
+  "description": "Seed evaluation set: candidate + job + human relevance label. Grow this to ~100 candidates x 500 jobs (PRD \u00a7102) and rerun `npm run eval` on every scoring/prompt change.",
+  "candidates": [
+    {
+      "id": "java-backend-5y",
+      "profile": {
+        "skills": [
+          "Java",
+          "Spring Boot",
+          "Microservices",
+          "AWS",
+          "PostgreSQL",
+          "REST APIs",
+          "Docker",
+          "Kafka"
+        ],
+        "yearsOfExperience": 5,
+        "seniority": "SENIOR",
+        "jobTitles": [
+          "Senior Software Engineer",
+          "Backend Engineer"
+        ]
+      },
+      "prefs": {
+        "jobTitles": [
+          "Java Developer",
+          "Backend Engineer"
+        ],
+        "locations": [
+          "Bengaluru",
+          "Remote - India"
+        ],
+        "workModes": [],
+        "employmentTypes": [
+          "FULL_TIME"
+        ]
+      },
+      "jobs": [
+        {
+          "id": "j1",
+          "label": "VERY_RELEVANT",
+          "title": "Senior Java Developer",
+          "company": "A",
+          "location": "Bengaluru, India",
+          "description": "Requirements: 4+ years Java, Spring Boot, microservices, AWS. Kafka is a plus."
+        },
+        {
+          "id": "j2",
+          "label": "VERY_RELEVANT",
+          "title": "Backend Engineer (Java/Spring)",
+          "company": "B",
+          "location": "Remote - India",
+          "description": "Build REST APIs in Java and Spring Boot on PostgreSQL. 3+ years experience. Docker."
+        },
+        {
+          "id": "j3",
+          "label": "RELEVANT",
+          "title": "Software Engineer - Platform",
+          "company": "C",
+          "location": "Bengaluru",
+          "description": "Kotlin or Java services, Kafka, Kubernetes, AWS. 5+ years."
+        },
+        {
+          "id": "j4",
+          "label": "RELEVANT",
+          "title": "Senior Backend Engineer",
+          "company": "D",
+          "location": "Bangalore, Karnataka",
+          "description": "Go and Java microservices, gRPC, PostgreSQL, 5+ years of experience."
+        },
+        {
+          "id": "j5",
+          "label": "BORDERLINE",
+          "title": "Full Stack Engineer",
+          "company": "E",
+          "location": "Bengaluru",
+          "description": "React, Node.js and some Java. 3+ years."
+        },
+        {
+          "id": "j6",
+          "label": "BORDERLINE",
+          "title": "Staff Engineer, Distributed Systems",
+          "company": "F",
+          "location": "Bengaluru",
+          "description": "12+ years building distributed systems in Java and Scala. Lead architecture."
+        },
+        {
+          "id": "j7",
+          "label": "IRRELEVANT",
+          "title": "iOS Developer",
+          "company": "G",
+          "location": "Bengaluru",
+          "description": "Swift, SwiftUI, iOS apps. 3+ years."
+        },
+        {
+          "id": "j8",
+          "label": "IRRELEVANT",
+          "title": "Data Scientist",
+          "company": "H",
+          "location": "Bengaluru",
+          "description": "Python, PyTorch, machine learning, statistics. 4+ years."
+        },
+        {
+          "id": "j9",
+          "label": "IRRELEVANT",
+          "title": "Java Developer",
+          "company": "I",
+          "location": "Pune",
+          "description": "Java, Spring Boot. 3+ years. On-site in Pune."
+        },
+        {
+          "id": "j10",
+          "label": "IRRELEVANT",
+          "title": "Sales Manager",
+          "company": "J",
+          "location": "Bengaluru",
+          "description": "B2B SaaS sales, Salesforce, quota carrying. 6+ years."
+        },
+        {
+          "id": "j11",
+          "label": "RELEVANT",
+          "title": "Java Microservices Engineer",
+          "company": "K",
+          "location": "Remote - India",
+          "description": "Spring Boot, Spring Cloud, Docker, Kubernetes, AWS. 4-6 years."
+        },
+        {
+          "id": "j12",
+          "label": "IRRELEVANT",
+          "title": "Software Engineering Intern",
+          "company": "L",
+          "location": "Bengaluru",
+          "description": "Summer internship. Java or Python basics."
+        },
+        {
+          "id": "j13",
+          "label": "VERY_RELEVANT",
+          "title": "Senior Backend Engineer",
+          "company": "M",
+          "location": "Bengaluru",
+          "description": "Requirements:\n5+ years building backend services in Java, Go, or Ruby.\nStrong PostgreSQL and REST APIs.\nExperience with Kafka is a plus."
+        }
+      ]
+    },
+    {
+      "id": "frontend-2y",
+      "profile": {
+        "skills": [
+          "JavaScript",
+          "TypeScript",
+          "React",
+          "Next.js",
+          "CSS",
+          "HTML",
+          "Redux",
+          "Jest"
+        ],
+        "yearsOfExperience": 2,
+        "seniority": "JUNIOR",
+        "jobTitles": [
+          "Frontend Developer"
+        ]
+      },
+      "prefs": {
+        "jobTitles": [
+          "Frontend Developer",
+          "React Developer"
+        ],
+        "locations": [
+          "Noida",
+          "Delhi",
+          "Gurugram"
+        ],
+        "workModes": [],
+        "employmentTypes": [
+          "FULL_TIME"
+        ]
+      },
+      "jobs": [
+        {
+          "id": "f1",
+          "label": "VERY_RELEVANT",
+          "title": "React Developer",
+          "company": "A",
+          "location": "Noida",
+          "description": "React, TypeScript, Redux. 1-3 years experience. Jest is a plus."
+        },
+        {
+          "id": "f2",
+          "label": "VERY_RELEVANT",
+          "title": "Frontend Engineer (Next.js)",
+          "company": "B",
+          "location": "Gurgaon",
+          "description": "Next.js, React, Tailwind CSS, TypeScript. 2+ years."
+        },
+        {
+          "id": "f3",
+          "label": "RELEVANT",
+          "title": "UI Developer",
+          "company": "C",
+          "location": "New Delhi",
+          "description": "HTML, CSS, JavaScript, Angular or React. 2 years."
+        },
+        {
+          "id": "f4",
+          "label": "BORDERLINE",
+          "title": "Full Stack Developer",
+          "company": "D",
+          "location": "Noida",
+          "description": "React and Node.js, MongoDB. 3+ years."
+        },
+        {
+          "id": "f5",
+          "label": "IRRELEVANT",
+          "title": "Senior Frontend Architect",
+          "company": "E",
+          "location": "Noida",
+          "description": "10+ years of frontend architecture, lead a team of 15."
+        },
+        {
+          "id": "f6",
+          "label": "IRRELEVANT",
+          "title": "React Developer",
+          "company": "F",
+          "location": "Hyderabad",
+          "description": "React, TypeScript. 2+ years. On-site."
+        },
+        {
+          "id": "f7",
+          "label": "IRRELEVANT",
+          "title": "DevOps Engineer",
+          "company": "G",
+          "location": "Gurugram",
+          "description": "Terraform, Kubernetes, AWS. 3+ years."
+        },
+        {
+          "id": "f8",
+          "label": "RELEVANT",
+          "title": "Software Engineer - Web",
+          "company": "H",
+          "location": "Gurugram, Haryana",
+          "description": "TypeScript, React, GraphQL, Jest. 1+ years."
+        },
+        {
+          "id": "f9",
+          "label": "RELEVANT",
+          "title": "Frontend Developer",
+          "company": "I",
+          "location": "Noida",
+          "description": "Requirements:\n2+ years with React or Vue.js or Angular.\nTypeScript and CSS.\nJest is a plus."
+        }
+      ]
+    }
+  ]
+}

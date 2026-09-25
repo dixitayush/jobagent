@@ -1,0 +1,14 @@
+[
+  {
+    "id": "a1b2c3d4-0000-4000-8000-000000000001",
+    "text": "Full Stack Developer",
+    "hostedUrl": "https://jobs.lever.co/globex/a1b2c3d4-0000-4000-8000-000000000001",
+    "createdAt": 1758700000000,
+    "categories": { "location": "Pune", "commitment": "Full-time", "team": "Platform", "allLocations": ["Pune", "Remote - India"] },
+    "workplaceType": "hybrid",
+    "description": "<div>Build React and Node.js services.</div>",
+    "lists": [{ "text": "Requirements", "content": "<li>3+ years with TypeScript</li><li>PostgreSQL</li>" }],
+    "additional": "<div>Docker is a plus.</div>",
+    "salaryRange": { "min": 1800000, "max": 2600000, "currency": "INR", "interval": "per-year-salary" }
+  }
+]

@@ -1,0 +1,1 @@
+{ "totalFound": 1, "content": [ { "id": "744000012345", "name": "QA Automation Engineer", "releasedDate": "2026-09-24T05:00:00.000Z", "location": { "city": "Chennai", "region": "TN", "country": "in", "remote": false }, "typeOfEmployment": { "label": "Full-time" }, "experienceLevel": { "label": "Mid-Senior Level" }, "department": { "label": "Quality" } } ] }

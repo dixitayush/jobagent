@@ -1,0 +1,15 @@
+node_modules/
+.next/
+dist/
+.data/
+coverage/
+*.tsbuildinfo
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+next-env.d.ts
+graphify-out/
+
+prd.md

@@ -1,0 +1,51 @@
+# Internal-only. TLS and public DNS live on Traefik (the VPS gateway).
+# Caddy has no published ports on the VPS; Traefik reaches it on the `proxy` network.
+# Locally (docker compose --profile full) it is published on :8081 instead.
+{
+	admin off
+	auto_https off
+	servers {
+		trusted_proxies static private_ranges
+	}
+}
+
+:80 {
+	encode gzip zstd
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		-Server
+	}
+
+	# Resume uploads are capped at 5 MB by the API; leave headroom for multipart overhead.
+	request_body {
+		max_size 8MB
+	}
+
+	# Express: REST API, email tracking links, liveness/readiness.
+	# The internal API (:4001, /internal/*, /metrics) is never routed here.
+	@backend path /api/* /health /ready
+	handle @backend {
+		reverse_proxy api:4000 {
+			header_up Host {http.request.host}
+			header_up X-Forwarded-Host {http.request.host}
+			transport http {
+				dial_timeout 5s
+				read_timeout 120s
+				write_timeout 120s
+			}
+		}
+	}
+
+	# Everything else is the Next.js dashboard.
+	handle {
+		reverse_proxy web:3000 {
+			header_up X-Forwarded-Host {http.request.host}
+			transport http {
+				dial_timeout 5s
+				read_timeout 60s
+			}
+		}
+	}
+}

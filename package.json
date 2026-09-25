@@ -1,0 +1,28 @@
+{
+  "name": "jobagent",
+  "private": true,
+  "version": "0.1.0",
+  "description": "AI Job Discovery & Matching Agent \u2014 multi-tenant SaaS",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev:api & npm run dev:worker & npm run dev:scheduler & npm run dev:web & wait",
+    "dev:api": "npm run dev -w @jobagent/api",
+    "dev:worker": "npm run dev:worker -w @jobagent/api",
+    "dev:scheduler": "npm run dev:scheduler -w @jobagent/api",
+    "dev:web": "npm run dev -w @jobagent/web",
+    "build": "npm run build -w @jobagent/api && npm run build -w @jobagent/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "migrate": "npm run migrate -w @jobagent/api",
+    "seed": "npm run seed -w @jobagent/api",
+    "eval": "npm run eval -w @jobagent/api",
+    "test:integration": "npm run test:integration -w @jobagent/api"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
